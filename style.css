@@ -1,0 +1,165 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f0f2f5;
+    color: #333;
+    padding: 20px;
+}
+
+/* การจัดการสลับหน้าจอ */
+.screen {
+    display: none;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+.screen.active {
+    display: block;
+}
+
+/* หน้าล็อกระบบนับเวลาแรกเข้า */
+#unlock-screen {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+}
+#unlock-screen.active {
+    display: flex;
+}
+
+.card {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    text-align: center;
+    max-width: 400px;
+    width: 100%;
+}
+
+.card h2 { margin-bottom: 15px; }
+.card p { margin-bottom: 25px; color: #666; font-size: 15px; }
+
+/* ดีไซน์ปุ่มสั่งการต่างๆ */
+.btn {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.btn-sm {
+    display: inline-block;
+    width: auto;
+    padding: 6px 12px;
+    font-size: 14px;
+    margin-left: 5px;
+}
+
+.btn-blue { background-color: #007bff; color: white; }
+.btn-blue:hover { background-color: #0056b3; }
+
+.btn-green { background-color: #28a745; color: white; }
+.btn-green:hover { background-color: #218838; }
+
+.btn-gray { background-color: #6c757d; color: white; }
+.btn-gray:disabled { background-color: #ccc; cursor: not-allowed; }
+
+.btn-red { background-color: #dc3545; color: white; }
+
+/* โครงสร้างหน้าหลัก */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #ddd;
+    margin-bottom: 20px;
+}
+
+.admin-zone {
+    background: #e9ecef;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+.form-group input {
+    padding: 10px;
+    margin: 5px 0;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* แสดงผลแบบ Grid ช่องตารางกล่องวิดีโอ */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* โครงสร้างตัวกล่องวิดีโอ (Box) */
+.video-box {
+    background: white;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+.video-box h4 { margin-bottom: 5px; font-size: 18px; color: #111; }
+.video-box p { font-size: 14px; color: #555; margin-bottom: 12px; }
+
+/* ล็อกขนาด Iframe ให้เป็นอัตราส่วนวิดีโอ 16:9 เสมอ */
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%; 
+    height: 0;
+    overflow: hidden;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    background: #000;
+}
+.video-container iframe {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+}
+
+/* หน้าต่างป๊อปอัพล็อกอิน (Modal) */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal.open { display: flex; }
+.modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 8px;
+    width: 320px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+.modal-content h3 { margin-bottom: 10px; }
+.modal-content input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+.modal-actions {
+    display: flex;
+    gap: 10px;
+}

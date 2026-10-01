@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1, viewport-fit=cover"
+    >
+
+    <meta name="theme-color" content="#07070a">
+
+    <meta
+        name="description"
+        content="NEXORA — คลังสคริปและเกม"
+    >
+
+    <title>NEXORA</title>
+
+    <!-- ================= Favicon ================= -->
+    <link
+        rel="icon"
+        href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23e11d2e'/%3E%3Ctext x='32' y='46' font-size='38' font-weight='700' text-anchor='middle' fill='white' font-family='Arial'%3EN%3C/text%3E%3C/svg%3E"
+    >
+
+    <!-- ================= Font ================= -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- ================= NEXORA CSS ================= -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- ================= Supabase SDK ================= -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+
+<body>
+
+    <!-- =====================================================
+         Background Effect
+    ====================================================== -->
+    <div
+        class="bg-fx"
+        aria-hidden="true"
+    ></div>
+
+
+    <!-- =====================================================
+         หน้า 1 : Unlock
+         
+         ผู้ใช้ทั่วไป:
+         เปิดลิงก์ภายนอก
+         ↓
+         รอ 5 วินาที
+         ↓
+         ปลดล็อก
+         ↓
+         เข้าเว็บไซต์ / Box ที่ต้องการ
+    ====================================================== -->
+
+    <section
+        id="unlock-screen"
+        class="screen active"
+    >
+
+        <div class="unlock-card">
+
+            <img
+                class="unlock-banner"
+                data-banner
+                alt="NEXORA"
+            >
+
+            <h2>
+                ขั้นตอนการเข้าสู่เว็บไซต์
+            </h2>
+
+            <p id="status-text">
+                กรุณากดปุ่มด้านล่างเพื่อเปิดลิงก์
+                และเริ่มนับเวลา
+            </p>
+
+            <div class="steps">
+
+                <!-- เปิดลิงก์ภายนอก -->
+                <button
+                    id="btn-open-tab"
+                    class="btn btn-primary"
+                    type="button"
+                >
+                    1. เปิดลิงก์ภายนอก
+                </button>
+
+
+                <!-- ปุ่มปลดล็อก -->
+                <button
+                    id="btn-unlock"
+                    class="btn btn-ghost"
+                    type="button"
+                    disabled
+                >
+                    2. ปลดล็อก (รอระบบ)
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         หน้า Main Website
+    ====================================================== -->
+
+    <div
+        id="main-screen"
+        class="screen"
+    >
+
+        <!-- ================= Topbar ================= -->
+
+        <header class="topbar">
+
+            <div class="topbar-inner">
+
+                <!-- Logo -->
+                <div class="brand">
+
+                    <span class="brand-mark">
+                        N
+                    </span>
+
+                    <span class="brand-name">
+                        NEXORA
+                    </span>
+
+                </div>
+
+
+                <!-- Actions -->
+                <div class="top-actions">
+
+                    <!-- เปิด/ปิด Admin Panel -->
+                    <button
+                        id="btn-admin-panel"
+                        class="btn btn-sm btn-ghost"
+                        type="button"
+                        hidden
+                    >
+                        จัดการระบบ
+                    </button>
+
+
+                    <!-- Google Admin Login -->
+                    <button
+                        id="btn-show-login"
+                        class="btn btn-sm btn-ghost"
+                        type="button"
+                    >
+                        Admin
+                    </button>
+
+
+                    <!-- Logout -->
+                    <button
+                        id="btn-logout"
+                        class="btn btn-sm btn-danger"
+                        type="button"
+                        hidden
+                    >
+                        Logout
+                    </button>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =================================================
+             Main Content
+        ================================================== -->
+
+        <main class="container">
+
+
+            <!-- ================= Hero ================= -->
+
+            <section class="hero">
+
+                <img
+                    class="hero-img"
+                    data-banner
+                    alt="NEXORA — มากกว่าคำว่าเกม คือครอบครัว"
+                >
+
+            </section>
+
+
+
+            <!-- ================= Page Header ================= -->
+
+            <div class="page-head">
+
+                <h1 class="page-title">
+                    คลังสคริป
+                    <span>&amp;</span>
+                    เกม
+                </h1>
+
+                <p class="page-sub">
+                    แตะที่กล่องเพื่อดูวิดีโอและคัดลอกสคริป
+                </p>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 Admin Panel
+                 
+                 แสดงเฉพาะ Admin
+            ================================================== -->
+
+            <section
+                id="admin-form-container"
+                class="admin-panel"
+                hidden
+            >
+
+                <h3>
+                    ＋ เพิ่มกล่องใหม่
+                    <small>
+                        (Admin Only)
+                    </small>
+                </h3>
+
+
+                <div class="form-grid">
+
+
+                    <!-- ================= Name + Creator ================= -->
+
+                    <div class="form-grid two">
+
+                        <div class="field">
+
+                            <label for="input-name">
+                                ชื่อเกม / ชื่อสคริป *
+                            </label>
+
+                            <input
+                                type="text"
+                                id="input-name"
+                                placeholder="เช่น Blox Fruits"
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label for="input-creator">
+                                ชื่อผู้สร้าง *
+                            </label>
+
+                            <input
+                                type="text"
+                                id="input-creator"
+                                placeholder="ชื่อผู้สร้าง Box"
+                                autocomplete="off"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+
+                    <!-- ================= YouTube ================= -->
+
+                    <div class="field">
+
+                        <label for="input-yt-link">
+                            ลิงก์ YouTube (ไม่บังคับ)
+                        </label>
+
+                        <input
+                            type="text"
+                            id="input-yt-link"
+                            inputmode="url"
+                            placeholder="https://www.youtube.com/watch?v=..."
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+
+                    <!-- ================= Script ================= -->
+
+                    <div class="field">
+
+                        <label for="input-script">
+                            สคริป (ไม่บังคับ)
+                        </label>
+
+                        <textarea
+                            id="input-script"
+                            placeholder="วางสคริปที่นี่..."
+                            spellcheck="false"
+                        ></textarea>
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         Cover Image
+                         
+                         ระบบใหม่จะ:
+                         รูปจากเครื่อง
+                         ↓
+                         Resize
+                         ↓
+                         Compress
+                         ↓
+                         WebP
+                         ↓
+                         Supabase Storage
+                    ================================================== -->
+
+                    <div class="field">
+
+                        <label>
+                            รูปปกเกม / สคริป
+                        </label>
+
+
+                        <label
+                            class="cover-drop"
+                            for="input-cover-file"
+                        >
+
+                            <div
+                                id="cover-preview"
+                                class="cover-preview"
+                            >
+                                ยังไม่มีรูป
+                            </div>
+
+
+                            <div class="cover-text">
+
+                                <strong>
+                                    แตะเพื่อเลือกรูปจากเครื่อง
+                                </strong>
+
+                                <span class="hint">
+
+                                    แนะนำ
+                                    <b>
+                                        1280 × 720 px
+                                    </b>
+
+                                    (อัตราส่วน 16:9)
+
+                                    <br>
+
+                                    ระบบจะครอปตรงกลาง
+                                    และบีบอัดรูปให้อัตโนมัติ
+
+                                    <br>
+
+                                    <b>
+                                        แนะนำไฟล์ WebP
+                                    </b>
+
+                                </span>
+
+                            </div>
+
+
+                            <input
+                                type="file"
+                                id="input-cover-file"
+                                accept="image/*"
+                            >
+
+                        </label>
+
+
+                        <p
+                            id="cover-info"
+                            class="hint cover-info"
+                        ></p>
+
+
+                        <!-- URL รูป -->
+                        <input
+                            type="text"
+                            id="input-cover-url"
+                            inputmode="url"
+                            placeholder="หรือวางลิงก์รูปภาพ (https://...)"
+                            style="margin-top:8px"
+                            autocomplete="off"
+                        >
+
+                    </div>
+
+
+
+                    <!-- ================= Add Box ================= -->
+
+                    <button
+                        id="btn-add-box"
+                        class="btn btn-primary btn-block"
+                        type="button"
+                    >
+                        สร้างกล่องและบันทึกลง Cloud
+                    </button>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =================================================
+                 Search + Sort
+            ================================================== -->
+
+            <section class="toolbar">
+
+
+                <!-- ================= Search ================= -->
+
+                <div class="search">
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        aria-hidden="true"
+                    >
+                        <circle
+                            cx="11"
+                            cy="11"
+                            r="7"
+                        />
+
+                        <path
+                            d="M20 20l-3.5-3.5"
+                        />
+                    </svg>
+
+
+                    <input
+                        type="search"
+                        id="search-input"
+                        placeholder="ค้นหาชื่อเกม / ผู้สร้าง..."
+                        autocomplete="off"
+                        enterkeyhint="search"
+                    >
+
+
+                    <button
+                        id="search-clear"
+                        class="clear"
+                        type="button"
+                        aria-label="ล้างคำค้นหา"
+                        hidden
+                    >
+                        ×
+                    </button>
+
+                </div>
+
+
+
+                <!-- ================= Sort ================= -->
+
+                <button
+                    id="btn-sort"
+                    class="btn btn-ghost sort-btn"
+                    type="button"
+                    title="สลับลำดับ"
+                >
+
+                    <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                    >
+
+                        <path d="M7 4v16" />
+
+                        <path d="M7 20l-3-3" />
+
+                        <path d="M7 20l3-3" />
+
+                        <path d="M17 20V4" />
+
+                        <path d="M17 4l-3 3" />
+
+                        <path d="M17 4l3 3" />
+
+                    </svg>
+
+
+                    <span id="sort-label">
+                        ใหม่ → เก่า
+                    </span>
+
+                </button>
+
+            </section>
+
+
+
+            <!-- ================= Result Count ================= -->
+
+            <div
+                id="result-count"
+                class="result-count"
+            ></div>
+
+
+
+            <!-- =================================================
+                 Box Grid
+                 
+                 JavaScript จะสร้าง Box ที่นี่
+            ================================================== -->
+
+            <div
+                id="box-container"
+                class="grid"
+            ></div>
+
+
+
+            <!-- =================================================
+                 Pagination
+                 
+                 JavaScript จะสร้าง:
+                 
+                 ‹ 1 2 3 4 ›
+                 
+                 ที่นี่
+            ================================================== -->
+
+            <nav
+                id="pagination"
+                class="pagination"
+                aria-label="หน้ารายการ"
+            ></nav>
+
+
+
+            <!-- ================= Footer ================= -->
+
+            <footer class="footer">
+                © NEXORA
+            </footer>
+
+        </main>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         Detail View
+         
+         เปิดเมื่อ:
+         
+         https://เว็บ/#/box/123
+    ====================================================== -->
+
+    <div
+        id="detail-view"
+        class="detail"
+        hidden
+        role="dialog"
+        aria-modal="true"
+        aria-label="รายละเอียด"
+    >
+
+
+        <!-- ================= Detail Header ================= -->
+
+        <div class="detail-bar">
+
+
+            <!-- Back -->
+            <button
+                id="btn-detail-back"
+                class="btn btn-sm btn-ghost"
+                type="button"
+            >
+                ← กลับ
+            </button>
+
+
+            <!-- Title -->
+            <span
+                id="detail-bar-title"
+                class="detail-bar-title"
+            ></span>
+
+        </div>
+
+
+
+        <!-- ================= Detail Content ================= -->
+
+        <div
+            id="detail-body"
+            class="detail-body"
+        ></div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         Google Admin Login Modal
+         
+         ไม่ใช้ Username / Password แล้ว
+         
+         Google Account ต้องเป็น:
+         
+         foreverspacexc@gmail.com
+         หรือ
+         aten131012@gmail.com
+    ====================================================== -->
+
+    <div
+        id="login-modal"
+        class="modal"
+        aria-hidden="true"
+    >
+
+        <div
+            class="modal-content"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="login-title"
+        >
+
+
+            <h3 id="login-title">
+                ผู้ดูแลระบบ
+            </h3>
+
+
+            <p class="login-desc">
+                กรุณาเข้าสู่ระบบด้วย Google
+            </p>
+
+
+            <p class="hint">
+                เฉพาะบัญชีที่ได้รับอนุญาตเท่านั้น
+            </p>
+
+
+
+            <!-- ================= Google Login ================= -->
+
+            <button
+                id="btn-google-login"
+                class="btn btn-primary btn-block"
+                type="button"
+            >
+                🔐 Continue with Google
+            </button>
+
+
+
+            <!-- ================= Close ================= -->
+
+            <button
+                id="btn-close-login"
+                class="btn btn-ghost btn-block"
+                type="button"
+            >
+                ยกเลิก
+            </button>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         Toast Notification
+    ====================================================== -->
+
+    <div
+        id="toast"
+        class="toast"
+        role="status"
+        aria-live="polite"
+    ></div>
+
+
+
+    <!-- =====================================================
+         NEXORA JavaScript
+    ====================================================== -->
+
+    <script src="script.js"></script>
+
+</body>
+</html>

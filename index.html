@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#07070a">
+    <title>NEXORA</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23e11d2e'/%3E%3Ctext x='32' y='46' font-size='38' font-weight='700' text-anchor='middle' fill='white' font-family='Arial'%3EN%3C/text%3E%3C/svg%3E">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Supabase SDK (v2) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <div class="bg-fx" aria-hidden="true"></div>
+
+    <!-- ================= หน้าแรก: ระบบปลดล็อก ================= -->
+    <section id="unlock-screen" class="screen active">
+        <div class="unlock-card">
+            <img class="unlock-banner" data-banner alt="NEXORA">
+            <h2>ขั้นตอนการเข้าสู่เว็บไซต์</h2>
+            <p id="status-text">กรุณากดปุ่มด้านล่างเพื่อเปิดลิงก์และเริ่มนับเวลา</p>
+            <div class="steps">
+                <button id="btn-open-tab" class="btn btn-primary">1. เปิดลิงก์ภายนอก</button>
+                <button id="btn-unlock" class="btn btn-ghost" disabled>2. ปลดล็อก (รอระบบ)</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ================= หน้าหลัก ================= -->
+    <div id="main-screen" class="screen">
+        <header class="topbar">
+            <div class="topbar-inner">
+                <div class="brand">
+                    <span class="brand-mark">N</span>
+                    <span class="brand-name">NEXORA</span>
+                </div>
+                <div class="top-actions">
+                    <button id="btn-admin-panel" class="btn btn-sm btn-ghost" hidden>จัดการระบบ</button>
+                    <button id="btn-show-login" class="btn btn-sm btn-ghost">Admin</button>
+                    <button id="btn-logout" class="btn btn-sm btn-danger" hidden>Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="container">
+            <section class="hero">
+                <img class="hero-img" data-banner alt="NEXORA — มากกว่าคำว่าเกม คือครอบครัว">
+            </section>
+
+            <div class="page-head">
+                <h1 class="page-title">คลังสคริป <span>&amp;</span> เกม</h1>
+                <p class="page-sub">แตะที่กล่องเพื่อดูวิดีโอและคัดลอกสคริป</p>
+            </div>
+
+            <!-- ฟอร์มสำหรับ Admin -->
+            <section id="admin-form-container" class="admin-panel" hidden>
+                <h3>＋ เพิ่มกล่องใหม่ <small>(Admin Only)</small></h3>
+                <div class="form-grid">
+                    <div class="form-grid two">
+                        <div class="field">
+                            <label for="input-name">ชื่อเกม / ชื่อสคริป *</label>
+                            <input type="text" id="input-name" placeholder="เช่น Blox Fruits">
+                        </div>
+                        <div class="field">
+                            <label for="input-creator">ชื่อผู้สร้าง *</label>
+                            <input type="text" id="input-creator" placeholder="ชื่อผู้สร้าง Box">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="input-yt-link">ลิงก์ YouTube (ไม่บังคับ)</label>
+                        <input type="text" id="input-yt-link" inputmode="url" placeholder="https://www.youtube.com/watch?v=...">
+                    </div>
+
+                    <div class="field">
+                        <label for="input-script">สคริป (ไม่บังคับ)</label>
+                        <textarea id="input-script" placeholder="วางสคริปที่นี่..." spellcheck="false"></textarea>
+                    </div>
+
+                    <div class="field">
+                        <label>รูปปกเกม / สคริป</label>
+                        <label class="cover-drop" for="input-cover-file">
+                            <div id="cover-preview" class="cover-preview">ยังไม่มีรูป</div>
+                            <div class="cover-text">
+                                <strong>แตะเพื่อเลือกรูปจากเครื่อง</strong>
+                                <span class="hint">แนะนำ <b>1280 × 720 px</b> (อัตราส่วน 16:9) ขึ้นไป<br>ระบบจะครอปตรงกลางและย่อเป็น 800 × 450 px ให้อัตโนมัติ</span>
+                            </div>
+                            <input type="file" id="input-cover-file" accept="image/*">
+                        </label>
+                        <p id="cover-info" class="hint cover-info"></p>
+                        <input type="text" id="input-cover-url" inputmode="url" placeholder="หรือวางลิงก์รูปภาพ (https://...)" style="margin-top:8px">
+                    </div>
+
+                    <button id="btn-add-box" class="btn btn-primary btn-block">สร้างกล่องและบันทึกลง Cloud</button>
+                </div>
+            </section>
+
+            <!-- ค้นหา + เรียงลำดับ -->
+            <section class="toolbar">
+                <div class="search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                    <input type="search" id="search-input" placeholder="ค้นหาชื่อเกม / ผู้สร้าง..." autocomplete="off" enterkeyhint="search">
+                    <button id="search-clear" class="clear" aria-label="ล้างคำค้นหา" hidden>×</button>
+                </div>
+                <button id="btn-sort" class="btn btn-ghost sort-btn" title="สลับลำดับ">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M7 20l-3-3M7 20l3-3M17 20V4M17 4l-3 3M17 4l3 3"/></svg>
+                    <span id="sort-label">ใหม่ → เก่า</span>
+                </button>
+            </section>
+            <div id="result-count" class="result-count"></div>
+
+            <div id="box-container" class="grid"></div>
+
+            <footer class="footer">© NEXORA</footer>
+        </main>
+    </div>
+
+    <!-- ================= หน้ารายละเอียด (เปิดเมื่อกดที่กล่อง) ================= -->
+    <div id="detail-view" class="detail" hidden role="dialog" aria-modal="true" aria-label="รายละเอียด">
+        <div class="detail-bar">
+            <button id="btn-detail-back" class="btn btn-sm btn-ghost">← กลับ</button>
+            <span id="detail-bar-title" class="detail-bar-title"></span>
+        </div>
+        <div id="detail-body" class="detail-body"></div>
+    </div>
+
+    <!-- Pop-up Login Admin -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h3>ผู้ดูแลระบบเข้าสู่ระบบ</h3>
+            <input type="text" id="login-user" placeholder="Username" autocomplete="username">
+            <input type="password" id="login-pass" placeholder="Password" autocomplete="current-password">
+            <div class="modal-actions">
+                <button id="btn-submit-login" class="btn btn-primary">ตกลง</button>
+                <button id="btn-close-login" class="btn btn-ghost">ยกเลิก</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>

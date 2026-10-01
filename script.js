@@ -1,5 +1,5 @@
 // ตั้งค่าตัวเชื่อมโยงไปยังฐานข้อมูล Supabase ของคุณ
-const SUPABASE_URL = "https://ysliushmitzoyahakeow.supabase.co";
+const SUPABASE_URL = "https://supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_GO_cBCqm82xZ3pSF5gU4pw_Ya8EDgPa";
 
 // เริ่มต้นใช้งาน Supabase Client
@@ -10,30 +10,41 @@ let countdownTimer = null;
 let isAdmin = false;
 let boxes = []; 
 
+// --- ระบบปลดล็อกเมื่อเปิดแท็บใหม่และสลับกลับมาหน้าเว็บ ---
 const unlockScreen = document.getElementById('unlock-screen');
 const mainScreen = document.getElementById('main-screen');
 const btnOpenTab = document.getElementById('btn-open-tab');
 const btnUnlock = document.getElementById('btn-unlock');
 const statusText = document.getElementById('status-text');
 
+// เมื่อกดปุ่มที่ 1 ให้เด้งไปลิงก์ Discord ทันที
 btnOpenTab.addEventListener('click', () => {
-    window.open('https://google.com', '_blank'); // สามารถเปลี่ยนลิงก์ภายนอกที่คุณต้องการให้กดได้ที่นี่
+    window.open('https://discord.gg/Hvyf8crug', '_blank'); 
     hasOpenedTab = true;
     statusText.innerText = "กรุณากลับมาที่หน้านี้เพื่อเริ่มนับเวลา 5 วินาที";
 });
 
+// ตรวจจับเมื่อผู้ใช้สลับหน้าจอกลับมาที่เว็บเรา
 window.addEventListener('focus', () => {
+    // ถ้าผู้ใช้เคยกดปุ่มเปิดลิงก์แล้ว และตัวนับเวลายังไม่ทำงาน ให้เริ่มนับถอยหลัง
     if (hasOpenedTab && !countdownTimer) {
         let timeLeft = 5;
-        statusText.innerText = `กำลังตรวจสอบการเข้าชม... กรุณารอ ${timeLeft} วินาที`;
+        
+        // อัปเดตข้อความปุ่มแรกทันทีเมื่อกลับเข้ามา
+        btnOpenTab.innerText = `รอ (${timeLeft}) วิ`;
+        btnOpenTab.setAttribute('disabled', 'true'); // ล็อกปุ่มแรกไว้ไม่ให้กดซ้ำ
+        btnOpenTab.className = "btn btn-gray"; // เปลี่ยนปุ่มแรกเป็นสีเทาชั่วคราว
         
         countdownTimer = setInterval(() => {
             timeLeft--;
             if (timeLeft > 0) {
-                statusText.innerText = `กำลังตรวจสอบการเข้าชม... กรุณารอ ${timeLeft} วินาที`;
+                btnOpenTab.innerText = `รอ (${timeLeft}) วิ`;
             } else {
                 clearInterval(countdownTimer);
+                btnOpenTab.innerText = "1. เปิดลิงก์ภายนอกสำเร็จ";
                 statusText.innerText = "ระบบตรวจสอบเสร็จสิ้น! สามารถกดปลดล็อกได้แล้ว";
+                
+                // เปลี่ยนปุ่มปลดล็อก (ปุ่มที่ 2) เป็นสีเขียวและเปิดใช้งาน
                 btnUnlock.removeAttribute('disabled');
                 btnUnlock.className = "btn btn-green";
             }
@@ -41,6 +52,7 @@ window.addEventListener('focus', () => {
     }
 });
 
+// กดปุ่มปลดล็อกเพื่อเข้าหน้าหลัก
 btnUnlock.addEventListener('click', () => {
     unlockScreen.classList.remove('active');
     mainScreen.classList.add('active');
@@ -53,7 +65,6 @@ async function fetchBoxesFromSupabase() {
     const container = document.getElementById('box-container');
     container.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">กำลังโหลดข้อมูลจากฐานข้อมูลออนไลน์...</p>';
 
-    // เรียกดึงข้อมูลจากตาราง youtube_boxes โดยเรียงลำดับตาม ID
     const { data, error } = await supabase
         .from('youtube_boxes')
         .select('*')
@@ -69,11 +80,10 @@ async function fetchBoxesFromSupabase() {
     renderBoxes();
 }
 
-// ฟังก์ชันแกะไอดีจากลิงก์ YouTube เพื่อนำมาเล่นแบบฝังตัวบนหน้าเว็บ (Embed)
 function extractYoutubeId(url) {
     const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
     const match = url.match(regExp);
-    return (match && match.length === 11) ? match[2] : null;
+    return (match && match.length === 11) ? match : null;
 }
 
 function renderBoxes() {
@@ -89,9 +99,8 @@ function renderBoxes() {
         const boxDiv = document.createElement('div');
         boxDiv.className = 'video-box';
 
-        // แมปชื่อตัวแปรให้ตรงกับหัวข้อคอลัมน์ใน Supabase ของคุณ (nan, cre, ytU)
         const ytId = extractYoutubeId(box.ytU);
-        const embedUrl = ytId ? `https://youtube.com{ytId}` : box.ytU;
+        const embedUrl = ytId ? `https://youtube.com{ytId}` : box.ytUrl;
 
         boxDiv.innerHTML = `
             <h4>ชื่อ: ${box.nan || 'ไม่มีชื่อ'}</h4>
@@ -105,7 +114,6 @@ function renderBoxes() {
     });
 }
 
-// ฟังก์ชันคัดลอกลิงก์เมื่อผู้ใช้กดปุ่ม
 window.copyText = function(text) {
     navigator.clipboard.writeText(text).then(() => {
         alert("คัดลอกลิงก์สำเร็จแล้ว!");
@@ -172,7 +180,6 @@ document.getElementById('btn-add-box').addEventListener('click', async () => {
         return;
     }
 
-    // ยิงชุดข้อมูลแมปเข้าคอลัมน์ nan, cre, ytU ของคุณบน Cloud
     const { error } = await supabase
         .from('youtube_boxes')
         .insert([{ nan: nameValue, cre: creatorValue, ytU: ytUrlValue }]);
@@ -183,12 +190,10 @@ document.getElementById('btn-add-box').addEventListener('click', async () => {
         return;
     }
 
-    // ล้างค่าในช่องกรอกข้อมูลเก่า
     document.getElementById('input-name').value = '';
     document.getElementById('input-creator').value = '';
     document.getElementById('input-yt-link').value = '';
 
-    // โหลดหน้าข้อมูลใหม่เพื่อรีเฟรชกล่องล่าสุด
     fetchBoxesFromSupabase();
     alert("สร้างกล่องและแชร์ให้ทุกคนเห็นบนหน้าเว็บเรียบร้อย!");
 });
